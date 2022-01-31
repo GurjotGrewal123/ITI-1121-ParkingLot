@@ -55,8 +55,8 @@ public class ParkingLot {
 		calculateLotDimensions(strFilename);
 
 		// instantiate the lotDesign and occupancy variables!
-		CarType[][] lotDesign = new CarType[this.numRows][this.numSpotsPerRow];
-		Car[][] occupancy = new Car[this.numRows][this.numSpotsPerRow];
+		this.lotDesign = new CarType[this.numRows][this.numSpotsPerRow];
+		this.occupancy = new Car[this.numRows][this.numSpotsPerRow];
 
 		// populate lotDesign and occupancy; you can do so by
 		// writing your own code or alternatively completing the 
@@ -126,41 +126,49 @@ public class ParkingLot {
 
 		Scanner scanner = new Scanner(new File(strFilename));
 
-		boolean flag = false;
-		while (scanner.hasNext() && flag == false) {
+		while (scanner.hasNext()) {
 			String str = scanner.nextLine();
-			if (str.equals("")){
-				flag = true;
+			if (str.equals(SECTIONER)){
+				break;
 			}
-			else{
-				for (int i = 0; i < str.length(); i++){
-					if (Character.isLetter(str.charAt(i))){
-					this.numSpotsPerRow++;
-					}
-				}
+			else if (!str.equals("")){
+				String[] currArray = str.split(SEPARATOR);
+				this.numSpotsPerRow = currArray.length;
+				this.numRows++;
 			}
-			this.numRows++;
 
         }
-		this.numRows--;
-		this.numSpotsPerRow = this.numSpotsPerRow/this.numRows;
+		System.out.println(this.numRows);
+		System.out.println(this.numSpotsPerRow);
     }
 
 	private void populateFromFile(String strFilename) throws Exception {
-
 		Scanner scanner = new Scanner(new File(strFilename));
 
-		// YOU MAY NEED TO DEFINE SOME LOCAL VARIABLES HERE!
-
 		// while loop for reading the lot design
+		int currRow, currCol;
+		currRow = 0;
 		while (scanner.hasNext()) {
-			
+			String str = scanner.nextLine();
+			if (str.equals(SECTIONER)){
+				break;
+			}
+			else if (!str.equals("")){
+				String[] currArray = str.split(SEPARATOR);
+				for (int i = 0; i < currArray.length; i++){
+					currCol = i;
+					CarType currCarname = Util.getCarTypeByLabel(currArray[i].strip());
+					lotDesign[currRow][currCol] = currCarname;
+				}
+			currRow++;	
+			}
+
+
 		}
 
 		// while loop for reading occupancy data
 		while (scanner.hasNext()) {
 			String str = scanner.nextLine();
-			// WRITE YOUR CODE HERE!
 		}
 
 		scanner.close();
