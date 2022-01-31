@@ -154,21 +154,26 @@ public class ParkingLot {
 				break;
 			}
 			else if (!str.equals("")){
-				String[] currArray = str.split(SEPARATOR);
-				for (int i = 0; i < currArray.length; i++){
+				String[] currLotArray = str.split(SEPARATOR);
+				for (int i = 0; i < currLotArray.length; i++){
 					currCol = i;
-					CarType currCarname = Util.getCarTypeByLabel(currArray[i].strip());
+					CarType currCarname = Util.getCarTypeByLabel(currLotArray[i].strip());
 					lotDesign[currRow][currCol] = currCarname;
 				}
 			currRow++;	
 			}
-
 
 		}
 
 		// while loop for reading occupancy data
 		while (scanner.hasNext()) {
 			String str = scanner.nextLine();
+			if (!str.equals("")){
+				String[] currOccArray = str.split(SEPARATOR);
+				CarType currCarname = Util.getCarTypeByLabel(currOccArray[2].strip());
+				Car carTemp = new Car(currCarname, currOccArray[3].strip());
+				occupancy[Integer.parseInt(currOccArray[0].strip())][Integer.parseInt(currOccArray[1].strip())] = carTemp;
+			}
 		}
 
 		scanner.close();
