@@ -72,7 +72,10 @@ public class ParkingLot {
 	 * @param c is the car to be parked
 	 */
 	public void park(int i, int j, Car c) {
-		// WRITE YOUR CODE HERE!
+		if (i < this.numRows && j <this.numSpotsPerRow){
+			this.occupancy[i][j] = c;
+		}
+
 	}
 
 	/**
@@ -84,8 +87,13 @@ public class ParkingLot {
 	 *         of range, or when there is no car parked at (i, j)
 	 */
 	public Car remove(int i, int j) {
-		// WRITE YOUR CODE HERE!
-		return null; // REMOVE THIS STATEMENT AFTER IMPLEMENTING THIS METHOD
+		if (i > numRows || j > numSpotsPerRow){
+			return null;
+		} else{
+			Car c = this.occupancy[i][j];
+			this.occupancy[i][j]= null;
+			return c;
+		}
 
 	}
 
@@ -98,9 +106,26 @@ public class ParkingLot {
 	 * @return true if car c can park at (i, j) and false otherwise
 	 */
 	public boolean canParkAt(int i, int j, Car c) {
-		// WRITE YOUR CODE HERE!
-		return false; // REMOVE THIS STATEMENT AFTER IMPLEMENTING THIS METHOD
-
+		
+		if (i < this.numRows || j < this.numSpotsPerRow) {
+            if ((lotDesign[i][j] != CarType.NA) && (this.occupancy[i][j] == null) ){
+                if (((lotDesign[i][j] == CarType.LARGE) || (lotDesign[i][j] ==CarType.REGULAR) || (lotDesign[i][j] ==CarType.SMALL)) && c.getType() == CarType.SMALL){
+                    return true;
+                }else if (((lotDesign[i][j] == CarType.LARGE) || (lotDesign[i][j] == CarType.REGULAR)) && c.getType() == CarType.REGULAR) {
+                    return true;
+                }else if (lotDesign[i][j] ==CarType.LARGE && c.getType() == CarType.LARGE){
+                    return true;
+                } else if (c.getType() == CarType.ELECTRIC){ 
+                    return true;
+                }else{
+                    return false;
+                }
+            }else {
+                return false;
+            }
+        }else{
+            return false;
+        }
 	}
 
 	/**
@@ -108,8 +133,16 @@ public class ParkingLot {
 	 *         used for parking (i.e., excluding spots that point to CarType.NA)
 	 */
 	public int getTotalCapacity() {
-		// WRITE YOUR CODE HERE!
-		return -1; // REMOVE THIS STATEMENT AFTER IMPLEMENTING THIS METHOD
+		int total = this.numRows*this.numSpotsPerRow; //calculates the total amount of car spots INCLUDING NA
+		int i;
+		for (i = 0; i < this.numRows; i++ ){
+			for (int j = 0; j < this.numSpotsPerRow; j++){
+				if (this.lotDesign[i][j] == CarType.NA){
+					total--;
+				}
+			}
+		}	//removes all NA
+		return total; 
 
 	}
 
@@ -118,8 +151,16 @@ public class ParkingLot {
 	 *         cars parked in the lot)
 	 */
 	public int getTotalOccupancy() {
-		// WRITE YOUR CODE HERE!
-		return -1; // REMOVE THIS STATEMENT AFTER IMPLEMENTING THIS METHOD		
+		int counter = 0;
+		
+		for (int i=0; i < occupancy.length; i++){
+			for (int j = 0; j < occupancy[0].length; j++){
+				if (this.occupancy[i][j] != null){
+					counter++;
+				}
+			}
+		}
+		return counter; 	
 	}
 
 	private void calculateLotDimensions(String strFilename) throws Exception {
@@ -138,8 +179,7 @@ public class ParkingLot {
 			}
 
         }
-		System.out.println(this.numRows);
-		System.out.println(this.numSpotsPerRow);
+
     }
 
 	private void populateFromFile(String strFilename) throws Exception {
@@ -158,7 +198,7 @@ public class ParkingLot {
 				for (int i = 0; i < currLotArray.length; i++){
 					currCol = i;
 					CarType currCarname = Util.getCarTypeByLabel(currLotArray[i].strip());
-					lotDesign[currRow][currCol] = currCarname;
+					this.lotDesign[currRow][currCol] = currCarname;
 				}
 			currRow++;	
 			}
@@ -172,7 +212,13 @@ public class ParkingLot {
 				String[] currOccArray = str.split(SEPARATOR);
 				CarType currCarname = Util.getCarTypeByLabel(currOccArray[2].strip());
 				Car carTemp = new Car(currCarname, currOccArray[3].strip());
-				occupancy[Integer.parseInt(currOccArray[0].strip())][Integer.parseInt(currOccArray[1].strip())] = carTemp;
+				if (canParkAt(Integer.parseInt(currOccArray[0].strip()), Integer.parseInt(currOccArray[1].strip()), carTemp)){
+					park(Integer.parseInt(currOccArray[0].strip()), Integer.parseInt(currOccArray[1].strip()), carTemp);
+				}
+				else{
+					String currCarType = Util.getLabelByCarType(carTemp.getType());
+					System.out.println("Car " + currCarType + "(" + carTemp.getPlateNum() + ") cannot be parked at (" +currOccArray[0].strip()+","+ currOccArray[1].strip()+")");
+				}
 			}
 		}
 

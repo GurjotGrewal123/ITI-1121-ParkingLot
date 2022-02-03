@@ -17,7 +17,7 @@ public class StudentInfo {
 
         System.out.println("************************************************************");
         System.out.println("*                                                          *");
-        System.out.println("*                                                          *");
+        System.out.println("*            Gurjot Grewal, 300263760, B00                 *");
         System.out.println("*                                                          *");
         System.out.println("*                                                          *");
         System.out.println("************************************************************");
