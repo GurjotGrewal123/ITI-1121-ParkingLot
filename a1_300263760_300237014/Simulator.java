@@ -77,13 +77,13 @@ public class Simulator {
 		// All you need to do is to convert this hourly rate into 
 		// a per-second rate (probability).
 		
-		//this.probabilityOfArrivalPerSec = new Rational(?, ?);
+		this.probabilityOfArrivalPerSec = new Rational(perHourArrivalRate, 3600);
 
 		
 		// Finally, you need to initialize the incoming and outgoing queues
 
-		// incomingQueue = new ...
-		// outgoingQueue = new ...
+		incomingQueue = new LinkedQueue<Spot>();
+		outgoingQueue = new LinkedQueue<Spot>();
 
 	}
 
@@ -97,12 +97,58 @@ public class Simulator {
 		// Local variables can be defined here.
 
 		this.clock = 0;
+		int parkNotify = 1;
+		Spot dequedCar = null;
+		Spot dequedCar2 = null;
 		// Note that for the specific purposes of A2, clock could have been 
 		// defined as a local variable too.
 
 		while (clock < steps) {
 	
-			// WRITE YOUR CODE HERE!
+			if (RandomGenerator.eventOccurred(probabilityOfArrivalPerSec)){
+				Spot randCar = new Spot(RandomGenerator.generateRandomCar(), clock);
+				incomingQueue.enqueue(randCar);
+			}
+
+			for (int i = 0; i<lot.getNumRows(); i++){
+				for (int j = 0; j<lot.getNumSpotsPerRow(); j++){
+					Spot carAtIJ = lot.getSpotAt(i, j);
+					if (carAtIJ != null){
+						int duration = clock - carAtIJ.getTimestamp();
+						if (duration == 8*3600){
+							lot.remove(i, j);
+							outgoingQueue.enqueue(carAtIJ);
+						}
+						else{
+							TriangularDistribution probLeaving = new TriangularDistribution(0,4*3600,8*3600);
+							if (RandomGenerator.eventOccurred(probLeaving.pdf(duration))){
+								lot.remove(i, j);
+								outgoingQueue.enqueue(carAtIJ);
+							}
+						}
+					}
+				}
+			}
+
+			if (incomingQueue.isEmpty() == false){
+				if (parkNotify == 1){
+					dequedCar = incomingQueue.dequeue();
+				}
+
+				if (lot.attemptParking(dequedCar.getCar(), clock)){
+					parkNotify = 1;
+					System.out.println(dequedCar.getCar() + " ENTERED at timestep " + clock + "; occupancy is at " + lot.getTotalOccupancy());
+				}
+				else{
+					parkNotify = 0;
+				}
+			}
+
+			if (outgoingQueue.isEmpty() == false){
+				dequedCar2 = outgoingQueue.dequeue();
+				System.out.println(dequedCar2.getCar() + " EXITED at timestep " + clock + "; occupancy is at " + lot.getTotalOccupancy());
+			}
+
 
 			clock++;
 		}

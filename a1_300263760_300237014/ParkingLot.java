@@ -165,8 +165,8 @@ public class ParkingLot {
 	 */
 	public boolean attemptParking(Car c, int timestamp) {
 
-		for (int i=0; i<lotDesign.length; i++){
-			for (int j=0; i<lotDesign[0].length; j++){
+		for (int i=0; i<numRows; i++){
+			for (int j=0; j<numSpotsPerRow; j++){
 				if (canParkAt(i, j, c)){
 					Spot spotCar = new Spot(c, timestamp);
 					occupancy[i][j] = spotCar;
